@@ -1,103 +1,51 @@
-# Mental-NLP-Classifiers
+## **Exploring Mental Health Conditions Through Linguistic Patterns in Online Texts**
 
-Exploring Mental Health Conditions Through Linguistic Patterns in Online Texts
+This repository contains the code and resources for this project. 
+It was developed for the Text Analytics Course 
+at the University of Pisa (A.Y. 2025/2026).
+
+**[Read the full Project Report (PDF)](ProjectReport.pdf)**
+
+## Authors
+* Matilde Viti
+* Elisa Calabrese
+* Francesco Curia
+* Alessia Di Gioia
 
 ## About the Project
-
-This project investigates Natural Language Processing (NLP) methods for the multi-class classification of mental health conditions from written texts. By combining deep semantic representations with engineered linguistic features, the study explores how language patterns may reflect psychological states and whether these signals can support automatic text classification.
+This study evaluates Natural Language Processing (NLP) methods for the multi-class classification of mental health conditions from written text. By integrating deep semantic representations with specific engineered features, the project aims to demonstrate how linguistic patterns can reflect psychological states, providing a foundational step toward NLP-assisted mental health support tools.
 
 ## Dataset
-
-The analysis is based on the **Kanakmi Mental Disorders Dataset**, which originally contains more than **580,000 forum posts**.
-
-### Target Classes
-The dataset includes the following diagnostic categories:
-- BPD
-- Bipolar
-- Depression
-- Anxiety
-- Schizophrenia
-
-### Data Balancing
-To address class imbalance and reduce computational cost, **random undersampling** was applied, resulting in a balanced dataset of **39,976 records**.
-
-### Exclusions
-The generic **"MentalIllness"** category was excluded in order to focus only on specific diagnostic classes.
+The analysis is based on the Kanakmi Mental Disorders Dataset, which originally comprises over 580,000 forum posts. 
+* **Target Classes**: The data covers diagnostic categories such as BPD, Bipolar, Depression, Anxiety, and Schizophrenia. 
+* **Data Balancing**: To address heavy class imbalance and optimize computational resources, random undersampling was applied, resulting in a balanced corpus of 39,976 records. 
+* **Exclusions**: The generic "MentalIllness" category was excluded to focus strictly on specific clinical classes.
 
 ## Methodology
 
 ### 1. Data Cleaning and Preprocessing
-
-The preprocessing pipeline included:
-- removal of non-English texts
-- removal of very short texts (under 200 characters)
-- removal of extreme outliers (texts longer than approximately 4,443 tokens)
-- tokenization, lowercasing, lemmatization, and removal of stop words and punctuation using **spaCy**
-- removal of HTML/XML tags using **BeautifulSoup**
-- removal of emojis due to their low frequency in the dataset
+* **Filtering**: Non-English texts, extremely short texts (under 200 characters), and severe outliers (texts exceeding approximately 4,443 tokens) were removed .
+* **Normalization**: The spaCy library was used for tokenization, lowercasing, lemmatization, and the removal of stop words and punctuation .
+* **Noise Reduction**: Emojis were removed due to sparse prevalence, and HTML/XML tags were stripped using BeautifulSoup .
 
 ### 2. Feature Engineering
-
-The models were built on a multidimensional feature representation including:
-
-#### Lexical and Syntactic Features
-- Standardized Type-Token Ratio (STTR)
-- text length
-- average sentence length
-
-#### Discourse Structure
-- average sentence coherence score
-
-#### Affective and Emotional Features
-- dominant emotions extracted with a **RoBERTa-based GoEmotions classifier**
-- sentiment polarity predicted with a **fine-tuned RoBERTa model**
-
-#### Toxicity
-- toxicity probability scores obtained with **Detoxify**
-- logit transformation applied to the toxicity scores
-
-#### Embeddings
-- **DistilBERT** contextual embeddings extracted from the **[CLS] token** (768 dimensions)
+The models leverage a multidimensional feature representation:
+* **Lexical & Syntactic Features**: Standardized Type-Token Ratio (STTR) for lexical diversity, text length, and average sentence length .
+* **Discourse Structure**: Semantic consistency was modeled using an average sentence coherence score .
+* **Affective & Emotional Features**: A RoBERTa-based GoEmotions classifier extracted dominant emotions, and a fine-tuned RoBERTa model classified sentiment polarity . 
+* **Toxicity**: A BERT-based transformer (Detoxify) provided toxicity probability scores, which were logit-transformed .
+* **Embeddings**: DistilBERT was utilized to extract 768-dimensional contextual embeddings from the [CLS] token .
 
 ## Models and Results
+Three supervised learning approaches were implemented and optimized:
 
-Three supervised models were implemented and evaluated:
+* **Multi-Layer Perceptron (MLP)**: The neural network achieved the highest overall performance with a test accuracy of 0.69 and a weighted F1-score of 0.68 . The model used a bottleneck design and was optimized using the AdamW optimizer with Early Stopping .
+* **Support Vector Machine (SVM)**: A linear kernel SVM achieved a test accuracy of 0.68 and a weighted F1-score of 0.68 . 
+* **XGBoost**: The ensemble tree model, optimized via Bayesian optimization (Optuna), achieved a test accuracy of 0.66 and a weighted F1-score of 0.66 .
 
-### Multi-Layer Perceptron (MLP)
-- Test Accuracy: **0.69**
-- Weighted F1-score: **0.68**
-
-This model achieved the best overall performance. It used a bottleneck architecture and was optimized with the **AdamW** optimizer and **Early Stopping**.
-
-### Support Vector Machine (SVM)
-- Test Accuracy: **0.68**
-- Weighted F1-score: **0.68**
-
-A linear kernel SVM produced results close to those of the MLP.
-
-### XGBoost
-- Test Accuracy: **0.66**
-- Weighted F1-score: **0.66**
-
-This model was optimized through **Bayesian optimization with Optuna**.
-
-### Key Findings
-Performance differed across classes. In particular, **Anxiety** and **Schizophrenia** obtained the highest F1-scores across models.
+**Key Findings**: Performance varied across categories, with Anxiety and Schizophrenia consistently showing the highest F1-scores across models .
 
 ## Explainability
-
-To improve interpretability, two post-hoc explanation methods were applied:
-
-### LIME
-Local explanations suggested that the neural model relies on a hybrid decision process: DistilBERT embeddings provide semantic information, while some engineered features, such as toxicity and emotional signals, can become decisive in specific predictions.
-
-### SHAP
-Global feature importance analysis showed that contextual embeddings play a major role overall, while some engineered linguistic features appear especially relevant for specific classes. For example:
-- **STTR** was particularly important for **BPD**
-- **toxicity scores** were strong indicators for **Depression**
-
-## Authors
-- Matilde Viti
-- Elisa Calabrese
-- Francesco Curia
-- Alessia Di Gioia
+To ensure clinical validity and model transparency, post-hoc interpretability techniques were applied :
+* **LIME**: Local explanations revealed that neural models use a hybrid decision process . The model relies on the DistilBERT embeddings for semantic context, while specific manual features (e.g., toxicity or emotional markers) act as decisive factors .
+* **SHAP**: Global feature importance analysis showed that while contextual embeddings dominate decision-making, specific linguistic markers vary by class . For example, lexical diversity (STTR) is crucial for identifying BPD, whereas toxicity scores strongly signal Depression .
